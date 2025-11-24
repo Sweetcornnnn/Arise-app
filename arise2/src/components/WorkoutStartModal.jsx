@@ -1,26 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-/**
- * WorkoutStartModal Component
- *
- * A reusable modal for starting workouts or quests with a countdown timer.
- * Features:
- * - Time input (minutes or hh:mm format)
- * - Persistent localStorage session tracking
- * - Automatic invalidation on page reload/close if timer hasn't finished
- * - Countdown display once started
- * - Callback handlers for completion and cancellation
- *
- * Props:
- * - isOpen: boolean - Controls modal visibility
- * - onClose: () => void - Called when user closes modal without starting
- * - onComplete: (sessionData) => void - Called when timer finishes naturally
- * - onCancel: (sessionData) => void - Called when user cancels mid-workout
- * - workoutId: string - Unique identifier for the workout/quest
- * - type: "workout" | "quest" - Type of activity
- */
-
 const STORAGE_KEY = "activeWorkoutSession";
 
 export const WorkoutStartModal = ({
@@ -32,8 +12,8 @@ export const WorkoutStartModal = ({
   type,
   title = type === "quest" ? "Start Daily Quest" : "Start Workout",
 }) => {
-  // State management
-  const [timeInput, setTimeInput] = useState("30"); // Default 30 minutes
+  
+  const [timeInput, setTimeInput] = useState("30"); 
   const [isStarted, setIsStarted] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [remainingMs, setRemainingMs] = useState(0);
@@ -42,10 +22,7 @@ export const WorkoutStartModal = ({
   const timerRef = useRef(null);
   const sessionRef = useRef(null);
 
-  /**
-   * Initialize modal on mount
-   * Check for any unfinished sessions from localStorage
-   */
+  
   useEffect(() => {
     checkForUnfinishedSession();
     return () => {
@@ -53,9 +30,7 @@ export const WorkoutStartModal = ({
     };
   }, []);
 
-  /**
-   * Format time display: hh:mm:ss
-   */
+  
   const formatTimeDisplay = (ms) => {
     const totalSecs = Math.floor(ms / 1000);
     const hours = Math.floor(totalSecs / 3600);
@@ -68,14 +43,11 @@ export const WorkoutStartModal = ({
     return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
   };
 
-  /**
-   * Parse user input (both "30" and "1:30" formats)
-   * Returns duration in milliseconds
-   */
+  
   const parseTimeInput = (input) => {
     const trimmed = input.trim();
 
-    // Handle hh:mm or mm:ss format
+    
     if (trimmed.includes(":")) {
       const parts = trimmed.split(":");
       if (parts.length === 2) {
@@ -94,7 +66,7 @@ export const WorkoutStartModal = ({
       }
     }
 
-    // Handle simple number format (minutes)
+    
     const minutes = parseInt(trimmed, 10);
     if (isNaN(minutes) || minutes <= 0) {
       return null;
@@ -102,19 +74,16 @@ export const WorkoutStartModal = ({
     return minutes * 60 * 1000;
   };
 
-  /**
-   * Check localStorage for unfinished session on page load
-   * If found, invalidate it automatically
-   */
+  
   const checkForUnfinishedSession = () => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         const session = JSON.parse(stored);
-        // If session was still active, it means user reloaded/closed app
+        
         if (session.isActive) {
           console.warn("Unfinished workout/quest detected and invalidated:", session.id);
-          // Automatically invalidate the session
+          
           invalidateSession(session);
         }
       }
@@ -123,39 +92,31 @@ export const WorkoutStartModal = ({
     }
   };
 
-  /**
-   * Invalidate a session (user closed app/reloaded before completing)
-   */
+  
   const invalidateSession = (session) => {
     session.isActive = false;
     session.endTime = Date.now();
     localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
 
-    // Notify parent if onCancel provided
+    
     if (onCancel) {
       onCancel(session);
     }
   };
 
-  /**
-   * Save session to localStorage
-   */
+  
   const saveSessionToStorage = (session) => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
     sessionRef.current = session;
   };
 
-  /**
-   * Clear session from localStorage
-   */
+  
   const clearSessionFromStorage = () => {
     localStorage.removeItem(STORAGE_KEY);
     sessionRef.current = null;
   };
 
-  /**
-   * Start the workout/quest timer
-   */
+  
   const handleStart = () => {
     setError("");
 
@@ -166,12 +127,12 @@ export const WorkoutStartModal = ({
     }
 
     if (durationMs > 12 * 3600 * 1000) {
-      // 12 hours max
+      
       setError("Maximum duration is 12 hours.");
       return;
     }
 
-    // Create session object
+    
     const session = {
       id: `${type}-${workoutId}-${Date.now()}`,
       type,
@@ -180,18 +141,16 @@ export const WorkoutStartModal = ({
       isActive: true,
     };
 
-    // Save to storage
+    
     saveSessionToStorage(session);
     setRemainingMs(durationMs);
     setIsStarted(true);
 
-    // Start countdown timer
+    
     startCountdown(session, durationMs);
   };
 
-  /**
-   * Start the countdown timer
-   */
+  
   const startCountdown = (session, durationMs) => {
     let timeLeft = durationMs;
 
@@ -201,11 +160,11 @@ export const WorkoutStartModal = ({
       timeLeft -= 1000;
       setRemainingMs(Math.max(0, timeLeft));
 
-      // Update localStorage every second with remaining time
+      
       const updatedSession = { ...session, estimatedDuration: Math.max(0, timeLeft) };
       saveSessionToStorage(updatedSession);
 
-      // Timer finished
+      
       if (timeLeft <= 0) {
         clearInterval(timerRef.current);
         handleTimerComplete(session);
@@ -213,28 +172,24 @@ export const WorkoutStartModal = ({
     }, 1000);
   };
 
-  /**
-   * Called when timer naturally completes
-   */
+  
   const handleTimerComplete = (session) => {
     session.isActive = false;
     session.endTime = Date.now();
 
-    // Save final state
+    
     saveSessionToStorage(session);
 
-    // Notify parent
+    
     onComplete(session);
 
-    // Reset modal
+    
     setTimeout(() => {
       resetModal();
     }, 500);
   };
 
-  /**
-   * Handle user cancellation during workout
-   */
+  
   const handleCancel = () => {
     if (timerRef.current) clearInterval(timerRef.current);
 
@@ -248,18 +203,14 @@ export const WorkoutStartModal = ({
     resetModal();
   };
 
-  /**
-   * Handle closing modal without starting
-   */
+  
   const handleClose = () => {
     if (timerRef.current) clearInterval(timerRef.current);
     resetModal();
     onClose();
   };
 
-  /**
-   * Reset modal to initial state
-   */
+  
   const resetModal = () => {
     setIsStarted(false);
     setIsMinimized(false);
@@ -272,7 +223,7 @@ export const WorkoutStartModal = ({
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop - only show when not minimized */}
+          
           {!isMinimized && (
             <motion.div
               initial={{ opacity: 0 }}
@@ -283,7 +234,7 @@ export const WorkoutStartModal = ({
             />
           )}
 
-          {/* Minimized Widget - appears in bottom-right corner */}
+          
           {isMinimized && isStarted && (
             <motion.div
               initial={{ opacity: 0, scale: 0.8, y: 20 }}
@@ -294,7 +245,7 @@ export const WorkoutStartModal = ({
             >
               <div className="card p-4 rounded-lg shadow-xl border border-neon-cyan bg-gradient-to-br from-card-bg to-card-bg/80 min-w-fit">
                 <div className="flex items-center gap-4">
-                  {/* Pulsing indicator */}
+                  
                   <motion.div
                     animate={{ scale: [1, 1.2, 1] }}
                     transition={{ duration: 1.5, repeat: Infinity }}
@@ -303,7 +254,7 @@ export const WorkoutStartModal = ({
                     <div className="w-3 h-3 rounded-full bg-neon-cyan shadow-lg shadow-neon-cyan" />
                   </motion.div>
 
-                  {/* Timer display */}
+                  
                   <div className="flex items-center gap-2">
                     <span className="font-mono font-bold text-lg xp-text">
                       {formatTimeDisplay(remainingMs)}
@@ -313,7 +264,7 @@ export const WorkoutStartModal = ({
                     </span>
                   </div>
 
-                  {/* Restore button */}
+                  
                   <motion.button
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.95 }}
@@ -327,7 +278,7 @@ export const WorkoutStartModal = ({
             </motion.div>
           )}
 
-          {/* Modal */}
+          
           {!isMinimized && (
             <motion.div
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -337,11 +288,11 @@ export const WorkoutStartModal = ({
               className="fixed inset-0 z-50 flex items-center justify-center p-4"
             >
               <div className="card w-full max-w-md p-8 rounded-lg shadow-2xl border border-neon-cyan">
-                {/* Header */}
+                
                 <div className="flex justify-between items-center mb-6">
                   <motion.h2 className="quest-title text-2xl">{title}</motion.h2>
                   <div className="flex gap-2">
-                    {/* Minimize button */}
+                    
                     {isStarted && (
                       <motion.button
                         whileHover={{ scale: 1.1 }}
@@ -353,7 +304,7 @@ export const WorkoutStartModal = ({
                         ━
                       </motion.button>
                     )}
-                    {/* Close button */}
+                    
                     <motion.button
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.95 }}
@@ -367,7 +318,7 @@ export const WorkoutStartModal = ({
                 </div>
 
                 {!isStarted ? (
-                // Initial state: Time input
+                
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -407,7 +358,7 @@ export const WorkoutStartModal = ({
                     </motion.p>
                   )}
 
-                  {/* Buttons */}
+                  
                   <div className="flex gap-3">
                     <motion.button
                       whileHover={{ scale: 1.05 }}
@@ -428,7 +379,7 @@ export const WorkoutStartModal = ({
                   </div>
                 </motion.div>
               ) : (
-                // Timer state: Countdown display
+                
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -438,7 +389,7 @@ export const WorkoutStartModal = ({
                     {type === "quest" ? "Quest" : "Workout"} in progress...
                   </p>
 
-                  {/* Large countdown timer */}
+                  
                   <motion.div
                     animate={{ scale: [1, 1.05, 1] }}
                     transition={{ duration: 1.5, repeat: Infinity }}
@@ -450,7 +401,7 @@ export const WorkoutStartModal = ({
                     </div>
                   </motion.div>
 
-                  {/* Progress bar */}
+                  
                   <div className="mb-6 bg-gray-700 rounded-full h-2 overflow-hidden">
                     <motion.div
                       className="h-full bg-gradient-to-r from-neon-cyan to-purple-600"
@@ -464,7 +415,7 @@ export const WorkoutStartModal = ({
                     ⏱️ Keep the app open until the timer completes
                   </p>
 
-                  {/* Cancel button */}
+                  
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}

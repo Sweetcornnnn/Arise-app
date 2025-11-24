@@ -24,16 +24,16 @@ export default function Login() {
       const { token, user } = res.data;
       console.log('Login: calling setAuth with user.id=', user?.id);
       setAuth(token, user);
-      // Also mark via store that we queued a quest notif for immediate display
+      
       try {
-        // use the global store setter if available
+        
         const { setShowQuestNotifQueued } = require('../store.js');
-        // Note: require returns the module; access the hook's setter via useStore? We will instead set via window event fallback
+       
       } catch (e) {
-        // ignore
+        
       }
       setAuthToken(token);
-        // Also set the store flag so QuestNotif can read it reliably
+        
         try {
           useStore.getState().setShowQuestNotifQueued(true);
           console.log('Login: setShowQuestNotifQueued(true) called successfully');
@@ -41,7 +41,7 @@ export default function Login() {
           console.error('Login: failed to set store flag', e);
         }
 
-      // Mark that we should show the Quest notification on the dashboard after login
+      
       try {
         sessionStorage.setItem('showQuestNotif', '1');
         console.log('Login: sessionStorage.showQuestNotif set to 1');
@@ -49,7 +49,7 @@ export default function Login() {
         console.error('Login: sessionStorage failed', e);
       }
 
-      // Dispatch a global event so QuestNotif can open immediately (more reliable than storage polling)
+      
       try {
         window.dispatchEvent(new Event('app:showQuestNotif'));
         console.log('Login: window event dispatched app:showQuestNotif');
@@ -58,7 +58,7 @@ export default function Login() {
       }
 
       console.log('Login: about to navigate to /home');
-      // Navigate to dashboard/home instead of directly to the Quest page
+      
       navigate("/home");
     } catch (err) {
       console.error('Login: caught error in submit', err?.response?.data || err);

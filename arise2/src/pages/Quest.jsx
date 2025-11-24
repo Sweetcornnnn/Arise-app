@@ -49,7 +49,6 @@ export default function Quest() {
   const [isOpen, setIsOpen] = useState(true);
   const [isRestDay, setIsRestDay] = useState(false);
 
-  // WorkoutStartModal state
   const [showStartModal, setShowStartModal] = useState(false);
   const [questInProgress, setQuestInProgress] = useState(false);
 
@@ -77,7 +76,7 @@ export default function Quest() {
     try {
       const res = await api.get(`/quests/today/${user.id}`);
 
-      // If server indicates a rest day (Saturday), handle separately
+      
       if (res.data && res.data.restDay) {
         setQuest(null);
         setIsRestDay(true);
@@ -169,31 +168,24 @@ export default function Quest() {
     }
   }
 
-  /**
-   * Called when user opens the start modal
-   */
+  
   const handleOpenStartModal = () => {
     setShowStartModal(true);
     setQuestInProgress(true);
   };
 
-  /**
-   * Called when the workout/quest timer finishes naturally
-   * This is where we actually complete the quest in the backend
-   */
+  
   const handleModalComplete = async (sessionData) => {
     console.log("Quest timer finished, completing quest:", sessionData);
     
     setShowStartModal(false);
     setQuestInProgress(false);
 
-    // Now complete the quest in the backend
+    
     await handleCompleteQuest();
   };
 
-  /**
-   * Called when user cancels the quest mid-timer
-   */
+  
   const handleModalCancel = (sessionData) => {
     console.log("Quest cancelled:", sessionData);
     setQuestInProgress(false);
@@ -201,9 +193,7 @@ export default function Quest() {
     setToast({ message: "Quest cancelled", type: "error" });
   };
 
-  /**
-   * Actually complete the quest in the backend
-   */
+  
   async function handleCompleteQuest() {
     setError("");
     try {
