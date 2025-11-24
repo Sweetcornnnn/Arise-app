@@ -47,6 +47,7 @@ export default function Quest() {
   const [completeMsg, setCompleteMsg] = useState("");
   const [toast, setToast] = useState(null);
   const [isOpen, setIsOpen] = useState(true);
+  const [isRestDay, setIsRestDay] = useState(false);
 
   // WorkoutStartModal state
   const [showStartModal, setShowStartModal] = useState(false);
@@ -75,17 +76,27 @@ export default function Quest() {
     setError("");
     try {
       const res = await api.get(`/quests/today/${user.id}`);
-      const q = res.data.quest || res.data;
-      setQuest(q);
-      setForm({
-        title: q?.title || "",
-        description: q?.description || "",
-        baseReps: q?.baseReps ?? 0,
-        baseDuration: q?.baseDuration ?? 0,
-      });
 
-      const nextUnlock = res.data.nextUnlock || q?.nextUnlock || getTomorrowMidnight();
-      startCountdown(nextUnlock);
+      // If server indicates a rest day (Saturday), handle separately
+      if (res.data && res.data.restDay) {
+        setQuest(null);
+        setIsRestDay(true);
+        const nextUnlock = res.data.nextUnlock || getTomorrowMidnight();
+        startCountdown(nextUnlock);
+      } else {
+        const q = res.data.quest || res.data;
+        setIsRestDay(false);
+        setQuest(q);
+        setForm({
+          title: q?.title || "",
+          description: q?.description || "",
+          baseReps: q?.baseReps ?? 0,
+          baseDuration: q?.baseDuration ?? 0,
+        });
+
+        const nextUnlock = res.data.nextUnlock || q?.nextUnlock || getTomorrowMidnight();
+        startCountdown(nextUnlock);
+      }
     } catch (e) {
       console.error(e);
       setError(e?.response?.data?.error || "Failed to load quest");
@@ -163,6 +174,7 @@ export default function Quest() {
    */
   const handleOpenStartModal = () => {
     setShowStartModal(true);
+    setQuestInProgress(true);
   };
 
   /**
@@ -226,7 +238,7 @@ export default function Quest() {
     );
 
   if (error) return <div className="min-h-screen p-6 bg-gray-900 text-white"><p className="text-red-400">{error}</p></div>;
-  if (!quest) return <div className="min-h-screen p-6 bg-gray-900 text-white">No quest found.</div>;
+  if (!quest && !isRestDay) return <div className="min-h-screen p-6 bg-gray-900 text-white">No quest found.</div>;
 
   const xp = quest.xp ?? user?.xp ?? 0;
   const levelInfo = xpToLevel(xp);
@@ -239,15 +251,31 @@ export default function Quest() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-dark-navy to-dark-bg text-white p-6">
       <div className="max-w-3xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="mb-4"
-        >
-          <Link to="/home" className="text-blue-400 hover:text-blue-300 underline">
-            ← Back
-          </Link>
-        </motion.div>
+        <motion.header
+                className="flex justify-between items-center mb-8"
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                <motion.h1
+                  className="quest-title text-4xl"
+                  whileHover={{ scale: 1.05 }}
+                >
+                  CHATROOM
+                </motion.h1>
+                <nav className="flex space-x-6">
+                  <motion.div whileHover={{ scale: 1.1 }}>
+                    <Link to="/home" className="text-neon-cyan hover:text-cyan-400 transition-colors duration-300 font-semibold">
+                      DASHBOARD
+                    </Link>
+                  </motion.div>
+                  <motion.div whileHover={{ scale: 1.1 }}>
+                    <Link to="/workouts" className="text-neon-cyan hover:text-cyan-400 transition-colors duration-300 font-semibold">
+                      WORKOUTS
+                    </Link>
+                  </motion.div>
+                </nav>
+              </motion.header>
 
         {!isOpen && (
           <motion.button
@@ -275,6 +303,25 @@ export default function Quest() {
               transition={{ duration: 0.5 }}
               className="card p-6 mb-6 animate-fade-in"
             >
+              {/* If it's a rest day show a friendly rest message; otherwise show the quest */}
+              {isRestDay ? (
+                <div className="text-center py-8">
+                  <motion.h2 className="quest-title text-2xl mb-4">Rest Day</motion.h2>
+                  <p className="description-text mb-4">Today is a rest day. Take time to recover — light walking, stretching, and hydration are recommended.</p>
+                  <div className="mb-4">
+                    <div className="text-sm description-text mb-2">Next quest in</div>
+                    <div className="text-xl font-mono xp-text">{formatTime(countdownMs)}</div>
+                  </div>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setIsOpen(false)}
+                    className="px-4 py-2 rounded font-semibold bg-gray-800 hover:bg-gray-700 transition"
+                  >
+                    Close
+                  </motion.button>
+                </div>
+              ) : (
               <div className="flex items-start gap-4">
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-2">
@@ -286,20 +333,32 @@ export default function Quest() {
                     >
                       {quest.title}
                     </motion.h2>
-                    <motion.button
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                      onClick={() => {
-                        setIsOpen(false);
-                        setEditing(false);
-                      }}
-                      className="text-2xl text-soft-gray hover:text-red-500 transition"
-                    >
-                      ✕
-                    </motion.button>
                   </div>
 
+                  {/* Media: gif or video guide */}
+                  {quest.mediaUrl && (
+                    <div className="mb-4 w-full max-h-64 overflow-hidden rounded">
+                      {quest.mediaType === 'video' ? (
+                        <video
+                          src={quest.mediaUrl}
+                          controls
+                          className="w-full h-auto rounded bg-black"
+                          preload="metadata"
+                        />
+                      ) : (
+                        <img src={quest.mediaUrl} alt={quest.title + ' guide'} className="w-full h-auto rounded object-cover" />
+                      )}
+                    </div>
+                  )}
+
                   <p className="description-text mb-4">{quest.description}</p>
+
+                  {/* Clear instructions and expected effect */}
+                  <div className="mb-4 p-4 bg-gray-800 rounded border border-gray-700">
+                    <div className="font-semibold mb-2">Instructions</div>
+                    <div className="text-sm text-gray-300 mb-2">{quest.instructions || `Perform the exercise for ${scaledDuration} minutes following good form. Adjust intensity to match your fitness.`}</div>
+                    <div className="text-xs text-gray-400">Expected effect: {`Improved ${quest.title.toLowerCase()}, better endurance/strength and a small XP reward.`}</div>
+                  </div>
 
                   <motion.div
                     initial={{ opacity: 0 }}
@@ -321,13 +380,13 @@ export default function Quest() {
                       >
                         ⏱️ Duration: <span className="xp-text">{scaledDuration}m</span>
                       </motion.div>
-                  <motion.div
-                    animate={{ scale: [1, 1.1, 1] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                    className="card px-3 py-2 text-yellow-300 font-semibold animate-pulse"
-                  >
-                    ⏳ {formatTime(countdownMs)}
-                  </motion.div>
+                      <motion.div
+                        animate={{ scale: [1, 1.1, 1] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                        className="card px-3 py-2 text-yellow-300 font-semibold animate-pulse"
+                      >
+                        ⏳ {formatTime(countdownMs)}
+                      </motion.div>
                     </div>
                   </motion.div>
 
@@ -351,7 +410,7 @@ export default function Quest() {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={handleOpenStartModal}
-                    disabled={questInProgress}
+                    disabled={questInProgress || !quest}
                     className="px-4 py-2 rounded font-semibold hover:shadow-glow-cyan transition-all duration-300 animate-glow disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     ▶ START QUEST
@@ -409,6 +468,8 @@ export default function Quest() {
                   </motion.div>
                 </motion.div>
               </div>
+              )}
+
 
               {editing && (
                 <motion.form
@@ -469,7 +530,7 @@ export default function Quest() {
                 transition={{ delay: 0.6 }}
                 className="mt-4 description-text text-sm italic"
               >
-                💭 <span className="xp-text">{quest.quote || 'Keep grinding!'}</span>
+                💭 <span className="xp-text">{quest?.quote || 'Keep grinding!'}</span>
               </motion.div>
             </motion.div>
           )}

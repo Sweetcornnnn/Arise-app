@@ -151,3 +151,30 @@ input:focus, textarea:focus, select:focus {
   font-size: 1.5rem;
   text-shadow: 0 0 12px rgba(0, 184, 255, 0.4);
 }
+
+/* Custom scrollbar styling for chat card vertical scrollbar */
+.card.overflow-y-auto {
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: #00b8ff transparent;
+}
+
+.card.overflow-y-auto::-webkit-scrollbar {
+  width: 8px;
+}
+
+.card.overflow-y-auto::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 10px;
+}
+
+.card.overflow-y-auto::-webkit-scrollbar-thumb {
+  background-color: #00b8ff;
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+  transition: background-color 0.3s ease;
+}
+
+.card.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background-color: #4be8ff;
+}

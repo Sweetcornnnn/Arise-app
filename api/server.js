@@ -256,18 +256,75 @@ app.get("/api/messages", (req, res) => {
 });
 
 // Quests
+// Quest pool: include optional `instructions` and `media` metadata (not persisted to DB),
+// frontend will use these fields when present to show GIFs/videos and clear exercise steps.
 const QUEST_POOL = [
-  { title: "Morning Run", description: "Start your day with a run", baseReps: 5, baseDuration: 20, quote: "A mile a day keeps the fatigue away." },
-  { title: "Strength Training", description: "Build muscle and power", baseReps: 15, baseDuration: 30, quote: "Strength comes from overcoming what you thought you couldn't." },
-  { title: "Cardio Blast", description: "Pump up your heart rate", baseReps: 20, baseDuration: 25, quote: "You can't win if you don't try." },
-  { title: "Flexibility & Stretch", description: "Improve your range of motion", baseReps: 10, baseDuration: 15, quote: "Flexibility is the foundation of fitness." },
-  { title: "HIIT Workout", description: "High intensity, high reward", baseReps: 30, baseDuration: 20, quote: "The pain today is the strength tomorrow." },
+  {
+    title: "Morning Run",
+    description: "Start your day with a 20-minute light run.",
+    baseReps: 5,
+    baseDuration: 20,
+    quote: "A mile a day keeps the fatigue away.",
+    instructions: "Warm up 3-5 minutes. Run at an easy conversational pace for the duration. Cool down and stretch after.",
+    mediaType: "gif",
+    mediaUrl: "https://media.giphy.com/media/l0MYEqEzwMWFCg8rm/giphy.gif",
+  },
+  {
+    title: "Strength Training",
+    description: "A focused strength session to build muscle and power.",
+    baseReps: 15,
+    baseDuration: 30,
+    quote: "Strength comes from overcoming what you thought you couldn't.",
+    instructions: "Perform 3 sets of compound movements (squats, push-ups, rows). Rest 60-90s between sets.",
+    mediaType: "video",
+    mediaUrl: "https://www.w3schools.com/html/mov_bbb.mp4",
+  },
+  {
+    title: "Cardio Blast",
+    description: "Short, intense cardio session to increase heart rate.",
+    baseReps: 20,
+    baseDuration: 25,
+    quote: "You can't win if you don't try.",
+    instructions: "Alternate 1 minute hard effort with 1 minute easy recovery. Repeat until duration completes.",
+    mediaType: "gif",
+    mediaUrl: "https://media.giphy.com/media/3o7aD2saalBwwftBIY/giphy.gif",
+  },
+  {
+    title: "Flexibility & Stretch",
+    description: "Improve your range of motion with guided stretches.",
+    baseReps: 10,
+    baseDuration: 15,
+    quote: "Flexibility is the foundation of fitness.",
+    instructions: "Hold each major muscle group stretch for 30-45s. Focus on breath and control.",
+    mediaType: "gif",
+    mediaUrl: "https://media.giphy.com/media/3o6Zt6ML6BklcajjsA/giphy.gif",
+  },
+  {
+    title: "HIIT Workout",
+    description: "High intensity intervals to build conditioning.",
+    baseReps: 30,
+    baseDuration: 20,
+    quote: "The pain today is the strength tomorrow.",
+    instructions: "20s all-out effort followed by 40s rest. Repeat intervals and scale intensity as needed.",
+    mediaType: "gif",
+    mediaUrl: "https://media.giphy.com/media/xT0GqssRweIhlz209i/giphy.gif",
+  },
 ];
 
 app.get("/api/quests/today/:userId", authMiddleware, (req, res) => {
   const uid = parseInt(req.params.userId);
-  const today = new Date().toISOString().split('T')[0];
-  
+  const now = new Date();
+  const today = now.toISOString().split('T')[0];
+  const weekday = now.getDay(); // 0 = Sun, 6 = Sat
+
+  // If Saturday, return a rest day (do not create a quest)
+  if (weekday === 6) {
+    const tomorrow = new Date(now);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
+    return res.json({ quest: null, nextUnlock: tomorrow.getTime(), restDay: true });
+  }
+
   db.get(
     `SELECT q.*, u.level, u.xp FROM quests q 
      JOIN users u ON q.userId = u.id 
@@ -275,16 +332,20 @@ app.get("/api/quests/today/:userId", authMiddleware, (req, res) => {
     [uid, today],
     (err, row) => {
       if (err) return res.status(500).json({ error: err.message });
-      
+
       if (!row) {
-        const quest = QUEST_POOL[Math.floor(Math.random() * QUEST_POOL.length)];
+        // Deterministic rotation based on day index and user id to ensure a different quest each day.
+        const dayIndex = Math.floor(new Date(today).getTime() / 86400000);
+        const poolIndex = (dayIndex + uid) % QUEST_POOL.length;
+        const poolQuest = QUEST_POOL[poolIndex];
+
         db.run(
           `INSERT INTO quests (userId, title, description, baseReps, baseDuration, questDate, quote) 
            VALUES (?, ?, ?, ?, ?, ?, ?)`,
-          [uid, quest.title, quest.description, quest.baseReps, quest.baseDuration, today, quest.quote],
+          [uid, poolQuest.title, poolQuest.description, poolQuest.baseReps, poolQuest.baseDuration, today, poolQuest.quote],
           function(err2) {
             if (err2) return res.status(500).json({ error: err2.message });
-            
+
             db.get(
               `SELECT q.*, u.level, u.xp FROM quests q 
                JOIN users u ON q.userId = u.id 
@@ -292,21 +353,40 @@ app.get("/api/quests/today/:userId", authMiddleware, (req, res) => {
               [this.lastID],
               (err3, newRow) => {
                 if (err3) return res.status(500).json({ error: err3.message });
-                
-                const tomorrow = new Date();
+
+                const tomorrow = new Date(now);
                 tomorrow.setDate(tomorrow.getDate() + 1);
                 tomorrow.setHours(0, 0, 0, 0);
-                
-                res.json({ quest: newRow, nextUnlock: tomorrow.getTime() });
+
+                // Attach non-persistent metadata (instructions, media) to the response.
+                const responseQuest = Object.assign({}, newRow, {
+                  instructions: poolQuest.instructions,
+                  mediaType: poolQuest.mediaType,
+                  mediaUrl: poolQuest.mediaUrl,
+                });
+
+                res.json({ quest: responseQuest, nextUnlock: tomorrow.getTime() });
               }
             );
           }
         );
       } else {
-        const tomorrow = new Date();
+        // Ensure response includes any metadata by computing today's pool index.
+        const dayIndex = Math.floor(new Date(today).getTime() / 86400000);
+        const poolIndex = (dayIndex + uid) % QUEST_POOL.length;
+        const poolQuest = QUEST_POOL[poolIndex];
+
+        const tomorrow = new Date(now);
         tomorrow.setDate(tomorrow.getDate() + 1);
         tomorrow.setHours(0, 0, 0, 0);
-        res.json({ quest: row, nextUnlock: tomorrow.getTime() });
+
+        const responseQuest = Object.assign({}, row, {
+          instructions: poolQuest.instructions,
+          mediaType: poolQuest.mediaType,
+          mediaUrl: poolQuest.mediaUrl,
+        });
+
+        res.json({ quest: responseQuest, nextUnlock: tomorrow.getTime() });
       }
     }
   );

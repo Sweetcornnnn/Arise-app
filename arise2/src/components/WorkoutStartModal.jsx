@@ -35,6 +35,7 @@ export const WorkoutStartModal = ({
   // State management
   const [timeInput, setTimeInput] = useState("30"); // Default 30 minutes
   const [isStarted, setIsStarted] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(false);
   const [remainingMs, setRemainingMs] = useState(0);
   const [error, setError] = useState("");
 
@@ -261,6 +262,7 @@ export const WorkoutStartModal = ({
    */
   const resetModal = () => {
     setIsStarted(false);
+    setIsMinimized(false);
     setTimeInput("30");
     setRemainingMs(0);
     setError("");
@@ -270,39 +272,101 @@ export const WorkoutStartModal = ({
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={!isStarted ? handleClose : undefined}
-            className="fixed inset-0 bg-black bg-opacity-70 z-40 backdrop-blur-sm"
-          />
+          {/* Backdrop - only show when not minimized */}
+          {!isMinimized && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={!isStarted ? handleClose : undefined}
+              className="fixed inset-0 bg-black bg-opacity-70 z-40 backdrop-blur-sm"
+            />
+          )}
+
+          {/* Minimized Widget - appears in bottom-right corner */}
+          {isMinimized && isStarted && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.8, y: 20 }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              className="fixed bottom-4 right-4 z-50"
+            >
+              <div className="card p-4 rounded-lg shadow-xl border border-neon-cyan bg-gradient-to-br from-card-bg to-card-bg/80 min-w-fit">
+                <div className="flex items-center gap-4">
+                  {/* Pulsing indicator */}
+                  <motion.div
+                    animate={{ scale: [1, 1.2, 1] }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                    className="flex-shrink-0"
+                  >
+                    <div className="w-3 h-3 rounded-full bg-neon-cyan shadow-lg shadow-neon-cyan" />
+                  </motion.div>
+
+                  {/* Timer display */}
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono font-bold text-lg xp-text">
+                      {formatTimeDisplay(remainingMs)}
+                    </span>
+                    <span className="text-xs text-gray-400 whitespace-nowrap">
+                      {type === "quest" ? "Quest" : "Workout"}
+                    </span>
+                  </div>
+
+                  {/* Restore button */}
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setIsMinimized(false)}
+                    className="flex-shrink-0 px-3 py-1 rounded bg-neon-cyan/20 border border-neon-cyan text-neon-cyan hover:bg-neon-cyan hover:text-card-bg transition-all duration-300 text-xs font-bold"
+                  >
+                    ▲ RESTORE
+                  </motion.button>
+                </div>
+              </div>
+            </motion.div>
+          )}
 
           {/* Modal */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          >
-            <div className="card w-full max-w-md p-8 rounded-lg shadow-2xl border border-neon-cyan">
-              {/* Header */}
-              <div className="flex justify-between items-center mb-6">
-                <motion.h2 className="quest-title text-2xl">{title}</motion.h2>
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={!isStarted ? handleClose : undefined}
-                  disabled={isStarted}
-                  className={`text-2xl ${isStarted ? "text-gray-600 cursor-not-allowed" : "text-soft-gray hover:text-red-500 transition cursor-pointer"}`}
-                >
-                  ✕
-                </motion.button>
-              </div>
+          {!isMinimized && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            >
+              <div className="card w-full max-w-md p-8 rounded-lg shadow-2xl border border-neon-cyan">
+                {/* Header */}
+                <div className="flex justify-between items-center mb-6">
+                  <motion.h2 className="quest-title text-2xl">{title}</motion.h2>
+                  <div className="flex gap-2">
+                    {/* Minimize button */}
+                    {isStarted && (
+                      <motion.button
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => setIsMinimized(true)}
+                        title="Minimize to continue using the app"
+                        className="text-2xl text-soft-gray hover:text-neon-cyan transition cursor-pointer"
+                      >
+                        ━
+                      </motion.button>
+                    )}
+                    {/* Close button */}
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={!isStarted ? handleClose : undefined}
+                      disabled={isStarted && !isMinimized}
+                      className={`text-2xl ${isStarted && !isMinimized ? "text-gray-600 cursor-not-allowed" : "text-soft-gray hover:text-red-500 transition cursor-pointer"}`}
+                    >
+                      ✕
+                    </motion.button>
+                  </div>
+                </div>
 
-              {!isStarted ? (
+                {!isStarted ? (
                 // Initial state: Time input
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
@@ -411,8 +475,9 @@ export const WorkoutStartModal = ({
                   </motion.button>
                 </motion.div>
               )}
-            </div>
-          </motion.div>
+              </div>
+            </motion.div>
+          )}
         </>
       )}
     </AnimatePresence>

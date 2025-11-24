@@ -6,6 +6,7 @@ import Dashboard from "./pages/Dashboard.jsx";
 import Workouts from "./pages/Workout";
 import Chat from "./pages/Chat";
 import Quest from "./pages/Quest.jsx";
+import Challenges from "./pages/Challenges.jsx";
 import { useStore } from "./store";
 import { setAuthToken } from "./api";
 
@@ -27,6 +28,7 @@ export default function App() {
         <Route path="/workouts" element={<Protected><Workouts /></Protected>} />
         <Route path="/quest" element={<Protected><Quest /></Protected>} />
         <Route path="/chat" element={<Protected><Chat /></Protected>} />
+        <Route path="/challenges" element={<Protected><Challenges /></Protected>} />
       </Routes>
     </BrowserRouter>
   );

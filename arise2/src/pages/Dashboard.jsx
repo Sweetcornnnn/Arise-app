@@ -187,7 +187,7 @@ export default function Dashboard() {
             whileTap={{ scale: 0.95 }}
           >
             <Link to="/quest" className="block">
-              <div className="text-4xl mb-4">📋</div>
+              <div className="text-4xl mb-4">🎯</div>
               <div className="xp-text text-xl font-bold mb-2">DAILY QUEST</div>
               <div className="description-text">Complete your mission</div>
             </Link>
@@ -198,7 +198,7 @@ export default function Dashboard() {
             whileTap={{ scale: 0.95 }}
           >
             <Link to="/workouts" className="block">
-              <div className="text-4xl mb-4">💪</div>
+              <div className="text-4xl mb-4">🗒️</div>
               <div className="xp-text text-xl font-bold mb-2">LOG WORKOUT</div>
               <div className="description-text">Track your progress</div>
             </Link>
@@ -208,10 +208,10 @@ export default function Dashboard() {
             whileHover={{ scale: 1.05, boxShadow: "0 0 40px rgba(0, 232, 255, 0.6)" }}
             whileTap={{ scale: 0.95 }}
           >
-            <Link to="/chat" className="block">
-              <div className="text-4xl mb-4">💬</div>
-              <div className="xp-text text-xl font-bold mb-2">CHAT</div>
-              <div className="description-text">Connect with others</div>
+            <Link to="/challenges" className="block">
+              <div className="text-4xl mb-4">❤️‍🔥</div>
+              <div className="xp-text text-xl font-bold mb-2">CHALLENGES</div>
+              <div className="description-text">Test our Limits</div>
             </Link>
           </motion.div>
         </div>

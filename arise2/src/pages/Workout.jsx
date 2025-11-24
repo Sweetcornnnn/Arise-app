@@ -68,10 +68,10 @@ export default function Workout() {
       return;
     }
 
-    // Open the start modal instead of immediately logging
+    // Immediately log the workout (manual log), do not open the modal.
+    // Mark as `loggedOnly` so UI can indicate it was only logged and not completed via timer.
     setCurrentWorkoutName(name);
-    setWorkoutInProgress(true);
-    setShowStartModal(true);
+    await logWorkoutToBackend(true);
   }
 
   /**
@@ -84,7 +84,7 @@ export default function Workout() {
     setShowStartModal(false);
 
     // Now log the workout in the backend
-    await logWorkoutToBackend();
+    await logWorkoutToBackend(false);
   }
 
   /**
@@ -100,7 +100,7 @@ export default function Workout() {
   /**
    * Actually log the workout to the backend
    */
-  async function logWorkoutToBackend() {
+  async function logWorkoutToBackend(loggedOnly = false) {
     try {
       const res = await api.post("/workouts", {
         name,
@@ -119,12 +119,14 @@ export default function Workout() {
         reps: raw?.reps ?? Number(reps),
         duration: raw?.duration ?? Number(duration),
         createdAt: raw?.createdAt ?? raw?.created_at ?? nowIso,
+        // Local flag to indicate this was manually logged (not completed via modal timer)
+        loggedOnly: !!loggedOnly,
         ...raw,
       };
 
       setWorkouts((w) => [newWorkout, ...w]);
       // Show top-right toast like Quest page
-      setToast({ message: "🎉 Workout logged successfully!", type: "success" });
+      setToast({ message: loggedOnly ? "🏷️ Workout logged (manual)" : "🎉 Workout logged successfully!", type: "success" });
       setName("");
       setSets(0);
       setReps(0);
@@ -339,6 +341,9 @@ export default function Workout() {
                 <div className="description-text text-sm mt-1">
                   Sets: <span className="xp-text">{w.sets}</span> | Reps: <span className="xp-text">{w.reps}</span> | Duration: <span className="xp-text">{w.duration}m</span>
                 </div>
+                {w.loggedOnly && (
+                  <div className="mt-2 inline-block px-2 py-1 text-xs rounded bg-yellow-700 text-yellow-100 font-semibold">LOGGED</div>
+                )}
               </div>
               <div className="text-xs description-text">
                 {(() => {

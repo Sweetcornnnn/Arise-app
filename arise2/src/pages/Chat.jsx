@@ -52,7 +52,7 @@ export default function Chat() {
           className="quest-title text-4xl"
           whileHover={{ scale: 1.05 }}
         >
-          CHAT ROOM
+          CHATROOM
         </motion.h1>
         <nav className="flex space-x-6">
           <motion.div whileHover={{ scale: 1.1 }}>
@@ -69,7 +69,7 @@ export default function Chat() {
       </motion.header>
 
       <motion.div
-        className="card p-4 h-96 overflow-y-auto mb-6 animate-slide-up"
+        className="card p-0 h-96 overflow-y-auto overflow-x-hidden mb-6 animate-slide-up"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2, duration: 0.5 }}
@@ -87,7 +87,7 @@ export default function Chat() {
                 {new Date(msg.createdAt).toLocaleTimeString()}
               </span>
             </div>
-            <div className="card p-3 text-sm">{msg.content}</div>
+            <div className="p-3 text-sm bg-card-bg rounded-lg">{msg.content}</div>
           </motion.div>
         ))}
         <div ref={messagesEnd} />
