@@ -65,37 +65,37 @@ export default function Register() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-dark-navy to-dark-bg text-white p-6">
+    <div className="page--auth">
       <motion.div
-        className="card p-8 w-96 animate-fade-in"
+        className="auth-card animate-fade-in"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
         <motion.h2
-          className="quest-title text-3xl mb-6 text-center"
+          className="quest-title auth-title"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
         >
           SIGN UP
         </motion.h2>
-        <form onSubmit={handleSignup} className="space-y-4">
+        <form onSubmit={handleSignup}>
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <label className="block text-sm mb-2 font-semibold">Username</label>
+            <label className="form-label">Username</label>
             <input
               type="text"
               placeholder="Username"
               value={username}
               onChange={e => setUsername(e.target.value)}
-              className="w-full p-3 rounded-lg bg-card-bg border border-neon-cyan focus:border-glow-cyan transition-all duration-300"
+              className="form-input"
               required
             />
-            {usernameError && <p className="text-red-400 text-sm mt-1">{usernameError}</p>}
+            {usernameError && <p className="form-error">{usernameError}</p>}
           </motion.div>
 
           <motion.div
@@ -103,21 +103,21 @@ export default function Register() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.4 }}
           >
-            <label className="block text-sm mb-2 font-semibold">Password</label>
+            <label className="form-label">Password</label>
             <input
               type="password"
               placeholder="Password"
               value={password}
               onChange={e => setPassword(e.target.value)}
-              className="w-full p-3 rounded-lg bg-card-bg border border-neon-cyan focus:border-glow-cyan transition-all duration-300"
+              className="form-input"
               required
             />
-            {passwordError && <p className="text-red-400 text-sm mt-1">{passwordError}</p>}
+            {passwordError && <p className="form-error">{passwordError}</p>}
           </motion.div>
 
           {error && (
             <motion.p
-              className="text-red-400 text-center"
+              className="form-error text-center"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
@@ -126,7 +126,7 @@ export default function Register() {
           )}
           {success && (
             <motion.p
-              className="text-green-400 text-center"
+              className="form-success text-center"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
@@ -136,7 +136,7 @@ export default function Register() {
 
           <motion.button
             type="submit"
-            className="w-full p-3 rounded-lg bg-gradient-to-r from-neon-cyan to-cyan-400 text-dark-navy font-bold hover:shadow-glow-cyan transition-all duration-300 animate-glow"
+            className="btn--primary"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             initial={{ opacity: 0 }}
@@ -148,12 +148,12 @@ export default function Register() {
         </form>
 
         <motion.p
-          className="mt-6 text-center description-text"
+          className="form-hint text-center"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6 }}
         >
-          Already have an account? <Link to="/" className="text-neon-cyan hover:text-cyan-400 transition-colors duration-300">Log in</Link>
+            Already have an account? <Link to="/" className="link-neon">Log in</Link>
         </motion.p>
       </motion.div>
     </div>

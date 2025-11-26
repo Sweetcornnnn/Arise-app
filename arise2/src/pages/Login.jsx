@@ -67,16 +67,16 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-dark-navy to-dark-bg text-white p-6">
+    <div className="page--auth">
       <motion.form
         onSubmit={submit}
-        className="card p-8 w-96 animate-fade-in"
+        className="auth-card animate-fade-in"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
         <motion.h2
-          className="quest-title text-3xl mb-6 text-center"
+          className="quest-title auth-title"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
@@ -89,11 +89,11 @@ export default function Login() {
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.3 }}
         >
-          <input
+            <input
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             placeholder="Username"
-            className="w-full p-3 mb-2 rounded-lg bg-card-bg border border-neon-cyan focus:border-glow-cyan transition-all duration-300"
+            className="form-input"
             required
           />
         </motion.div>
@@ -103,12 +103,12 @@ export default function Login() {
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.4 }}
         >
-          <input
+            <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
-            className="w-full p-3 rounded-lg bg-card-bg border border-neon-cyan focus:border-glow-cyan transition-all duration-300"
+            className="form-input"
             required
           />
         </motion.div>
@@ -123,7 +123,7 @@ export default function Login() {
         )}
         <motion.button
           type="submit"
-          className="w-full p-3 rounded-lg bg-gradient-to-r from-neon-cyan to-cyan-400 text-dark-navy font-bold hover:shadow-glow-cyan transition-all duration-300 animate-glow"
+          className="w-full btn--primary"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           initial={{ opacity: 0 }}
@@ -138,7 +138,7 @@ export default function Login() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6 }}
         >
-          <p>Don't have an account? <Link to="/register" className="text-neon-cyan hover:text-cyan-400 transition-colors duration-300">Register here</Link></p>
+          <p>Don't have an account? <Link to="/register" className="link-neon">Register here</Link></p>
         </motion.div>
       </motion.form>
     </div>

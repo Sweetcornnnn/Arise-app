@@ -10,7 +10,7 @@ const Home = () => {
   }, [user]);
 
   return (
-    <div className="min-h-screen">
+    <div className="page--home">
       <QuestNotif />
       <div className="p-6">Dashboard</div>
     </div>

@@ -41,35 +41,35 @@ export default function Chat() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-dark-navy to-dark-bg text-white p-6 animate-fade-in">
+    <div className="page--chat">
+      <div className="chat__container">
       <motion.header
-        className="flex justify-between items-center mb-8"
+        className="chat__header"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
         <motion.h1
-          className="quest-title text-4xl"
+          className="quest-title"
           whileHover={{ scale: 1.05 }}
         >
           CHATROOM
         </motion.h1>
         <nav className="flex space-x-6">
           <motion.div whileHover={{ scale: 1.1 }}>
-            <Link to="/home" className="text-neon-cyan hover:text-cyan-400 transition-colors duration-300 font-semibold">
+            <Link to="/home" className="nav-link">
               DASHBOARD
             </Link>
           </motion.div>
           <motion.div whileHover={{ scale: 1.1 }}>
-            <Link to="/workouts" className="text-neon-cyan hover:text-cyan-400 transition-colors duration-300 font-semibold">
+            <Link to="/workouts" className="nav-link">
               WORKOUTS
             </Link>
           </motion.div>
         </nav>
       </motion.header>
-
       <motion.div
-        className="card p-0 h-96 overflow-y-auto overflow-x-hidden mb-6 animate-slide-up"
+        className="chat__messages"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2, duration: 0.5 }}
@@ -77,24 +77,24 @@ export default function Chat() {
         {messages.map((msg, index) => (
           <motion.div
             key={msg.id}
-            className="mb-4"
+            className="chat__message"
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3 + index * 0.05 }}
           >
-            <div className="description-text text-sm mb-1">
+            <div className="chat__meta">
               <span className="text-neon-cyan font-semibold">{msg.senderName || "anon"}</span> · <span className="text-xs">
                 {new Date(msg.createdAt).toLocaleTimeString()}
               </span>
             </div>
-            <div className="p-3 text-sm bg-card-bg rounded-lg">{msg.content}</div>
+            <div className="chat__bubble">{msg.content}</div>
           </motion.div>
         ))}
         <div ref={messagesEnd} />
       </motion.div>
 
       <motion.div
-        className="flex gap-4"
+        className="chat__input-row"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4, duration: 0.5 }}
@@ -103,19 +103,20 @@ export default function Chat() {
           value={text}
           onChange={e => setText(e.target.value)}
           onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-          className="flex-1 p-3 rounded-lg bg-card-bg border border-neon-cyan focus:border-glow-cyan transition-all duration-300"
+          className="chat__input"
           placeholder="Say something..."
           whileFocus={{ scale: 1.02 }}
         />
         <motion.button
           onClick={sendMessage}
-          className="px-6 py-3 rounded-lg font-bold hover:shadow-glow-cyan transition-all duration-300 animate-glow"
+          className="btn--primary chat__send"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
           SEND
         </motion.button>
       </motion.div>
+      </div>
     </div>
   );
 }

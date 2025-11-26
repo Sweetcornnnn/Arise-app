@@ -19,13 +19,13 @@ function formatTime(ms) {
 }
 
 function Toast({ message, type = "success" }) {
-  const bgColor = type === "success" ? "bg-green-600" : "bg-red-600";
+  const cls = `toast ${type === 'success' ? 'toast--success' : 'toast--error'}`;
   return (
     <motion.div
       initial={{ opacity: 0, y: -50 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className={`fixed top-4 right-4 p-4 rounded-lg text-white ${bgColor} shadow-lg`}
+      className={cls}
     >
       {message}
     </motion.div>
@@ -216,19 +216,19 @@ export default function Quest() {
     }
   }
 
-  if (loading) 
+  if (loading)
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white">
+      <div className="quest-loading">
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-          className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full"
+          className="quest-spinner"
         />
       </div>
     );
 
-  if (error) return <div className="min-h-screen p-6 bg-gray-900 text-white"><p className="text-red-400">{error}</p></div>;
-  if (!quest && !isRestDay) return <div className="min-h-screen p-6 bg-gray-900 text-white">No quest found.</div>;
+  if (error) return <div className="quest-loading"><p className="form-error">{error}</p></div>;
+  if (!quest && !isRestDay) return <div className="quest-loading">No quest found.</div>;
 
   const xp = quest.xp ?? user?.xp ?? 0;
   const levelInfo = xpToLevel(xp);
@@ -239,28 +239,28 @@ export default function Quest() {
   const scaledDuration = scaledValue(quest.baseDuration ?? 20, level);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-dark-navy to-dark-bg text-white p-6">
+    <div className="page--quest">
       <div className="max-w-3xl mx-auto">
         <motion.header
-                className="flex justify-between items-center mb-8"
+                className="quest__header"
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
               >
                 <motion.h1
-                  className="quest-title text-4xl"
+                  className="quest-title"
                   whileHover={{ scale: 1.05 }}
                 >
                   CHATROOM
                 </motion.h1>
-                <nav className="flex space-x-6">
+                <nav className="nav-links">
                   <motion.div whileHover={{ scale: 1.1 }}>
-                    <Link to="/home" className="text-neon-cyan hover:text-cyan-400 transition-colors duration-300 font-semibold">
+                    <Link to="/home" className="nav-link">
                       DASHBOARD
                     </Link>
                   </motion.div>
                   <motion.div whileHover={{ scale: 1.1 }}>
-                    <Link to="/workouts" className="text-neon-cyan hover:text-cyan-400 transition-colors duration-300 font-semibold">
+                    <Link to="/workouts" className="nav-link">
                       WORKOUTS
                     </Link>
                   </motion.div>
@@ -274,7 +274,7 @@ export default function Quest() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setIsOpen(true)}
-            className="w-full mb-4 p-4 bg-gradient-to-r from-blue-600 to-blue-500 rounded-lg font-semibold hover:shadow-lg transition flex items-center justify-center gap-2"
+            className="quest__open-button"
           >
             📋 Open Daily Quest
           </motion.button>
@@ -291,35 +291,35 @@ export default function Quest() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="card p-6 mb-6 animate-fade-in"
+              className="card quest__card"
             >
               {/* If it's a rest day show a friendly rest message; otherwise show the quest */}
-              {isRestDay ? (
-                <div className="text-center py-8">
-                  <motion.h2 className="quest-title text-2xl mb-4">Rest Day</motion.h2>
-                  <p className="description-text mb-4">Today is a rest day. Take time to recover — light walking, stretching, and hydration are recommended.</p>
-                  <div className="mb-4">
-                    <div className="text-sm description-text mb-2">Next quest in</div>
-                    <div className="text-xl font-mono xp-text">{formatTime(countdownMs)}</div>
+                {isRestDay ? (
+                <div className="rest-day">
+                  <motion.h2 className="quest-title rest-title">Rest Day</motion.h2>
+                  <p className="description-text rest-desc">Today is a rest day. Take time to recover — light walking, stretching, and hydration are recommended.</p>
+                  <div className="rest-countdown">
+                    <div className="rest-label">Next quest in</div>
+                    <div className="rest-timer">{formatTime(countdownMs)}</div>
                   </div>
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setIsOpen(false)}
-                    className="px-4 py-2 rounded font-semibold bg-gray-800 hover:bg-gray-700 transition"
+                    className="btn--secondary"
                   >
                     Close
                   </motion.button>
                 </div>
               ) : (
-              <div className="flex items-start gap-4">
-                <div className="flex-1">
-                  <div className="flex items-center justify-between mb-2">
+              <div className="quest-main">
+                <div className="quest-content">
+                  <div className="quest-title-row">
                     <motion.h2
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       transition={{ delay: 0.2 }}
-                      className="quest-title text-2xl"
+                      className="quest-title quest-title-lg"
                     >
                       {quest.title}
                     </motion.h2>
@@ -327,53 +327,53 @@ export default function Quest() {
 
                   {/* Media: gif or video guide */}
                   {quest.mediaUrl && (
-                    <div className="mb-4 w-full max-h-64 overflow-hidden rounded">
+                    <div className="quest__media">
                       {quest.mediaType === 'video' ? (
                         <video
                           src={quest.mediaUrl}
                           controls
-                          className="w-full h-auto rounded bg-black"
+                          className="w-full h-auto"
                           preload="metadata"
                         />
                       ) : (
-                        <img src={quest.mediaUrl} alt={quest.title + ' guide'} className="w-full h-auto rounded object-cover" />
+                        <img src={quest.mediaUrl} alt={quest.title + ' guide'} className="quest-media-img" />
                       )}
                     </div>
                   )}
 
-                  <p className="description-text mb-4">{quest.description}</p>
+                  <p className="description-text quest-desc">{quest.description}</p>
 
                   {/* Clear instructions and expected effect */}
-                  <div className="mb-4 p-4 bg-gray-800 rounded border border-gray-700">
-                    <div className="font-semibold mb-2">Instructions</div>
-                    <div className="text-sm text-gray-300 mb-2">{quest.instructions || `Perform the exercise for ${scaledDuration} minutes following good form. Adjust intensity to match your fitness.`}</div>
-                    <div className="text-xs text-gray-400">Expected effect: {`Improved ${quest.title.toLowerCase()}, better endurance/strength and a small XP reward.`}</div>
+                  <div className="instructions-panel">
+                    <div className="instructions-label">Instructions</div>
+                    <div className="instructions-text">{quest.instructions || `Perform the exercise for ${scaledDuration} minutes following good form. Adjust intensity to match your fitness.`}</div>
+                    <div className="instructions-effect">Expected effect: {`Improved ${quest.title.toLowerCase()}, better endurance/strength and a small XP reward.`}</div>
                   </div>
 
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.3 }}
-                    className="mb-4"
+                    className="quest-difficulty"
                   >
-                    <div className="text-sm description-text mb-2">Difficulty (scales with level)</div>
-                    <div className="flex gap-3 mt-1 flex-wrap">
+                    <div className="difficulty-label">Difficulty (scales with level)</div>
+                    <div className="difficulty-row">
                       <motion.div
                         whileHover={{ scale: 1.05 }}
-                        className="card px-3 py-2"
+                        className="card difficulty-card"
                       >
                         💪 Reps: <span className="xp-text">{scaledReps}</span>
                       </motion.div>
                       <motion.div
                         whileHover={{ scale: 1.05 }}
-                        className="card px-3 py-2"
+                        className="card difficulty-card"
                       >
                         ⏱️ Duration: <span className="xp-text">{scaledDuration}m</span>
                       </motion.div>
                       <motion.div
                         animate={{ scale: [1, 1.1, 1] }}
                         transition={{ duration: 2, repeat: Infinity }}
-                        className="card px-3 py-2 text-yellow-300 font-semibold animate-pulse"
+                        className="card difficulty-card quest-difficulty-pulse"
                       >
                         ⏳ {formatTime(countdownMs)}
                       </motion.div>
@@ -384,7 +384,7 @@ export default function Quest() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.4 }}
-                    className="mb-4"
+                    className="quest-difficulty"
                   >
                     <LevelProgress level={level} progress={progress} />
                   </motion.div>
@@ -394,14 +394,14 @@ export default function Quest() {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       transition={{ delay: 0.5 }}
-                      className="flex gap-3 flex-wrap"
+                      className="difficulty-row"
                     >
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={handleOpenStartModal}
                     disabled={questInProgress || !quest}
-                    className="px-4 py-2 rounded font-semibold hover:shadow-glow-cyan transition-all duration-300 animate-glow disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="btn--primary"
                   >
                     ▶ START QUEST
                   </motion.button>
@@ -409,7 +409,7 @@ export default function Quest() {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setEditing((s) => !s)}
-                    className="px-4 py-2 rounded font-semibold hover:shadow-glow-cyan transition-all duration-300 animate-glow"
+                    className="btn--secondary"
                   >
                     {editing ? '✕ CANCEL' : '✎ EDIT'}
                   </motion.button>
@@ -421,12 +421,12 @@ export default function Quest() {
                       initial={{ scale: 0.5, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
                       transition={{ type: "spring", stiffness: 300 }}
-                      className="mt-4 p-4 bg-gradient-to-r from-green-800 to-green-700 rounded-lg border border-green-500"
+                      className="quest-success"
                     >
                       <motion.div
                         animate={{ y: [0, -5, 0] }}
                         transition={{ duration: 0.8, repeat: Infinity }}
-                        className="font-semibold text-lg"
+                        className="quest-success-title"
                       >
                         🎉 {completeMsg}
                       </motion.div>
@@ -434,7 +434,7 @@ export default function Quest() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.5 }}
-                        className="text-sm text-gray-200 mt-2"
+                        className="quest-success-desc"
                       >
                         Redirecting...
                       </motion.div>
@@ -446,13 +446,13 @@ export default function Quest() {
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.3 }}
-                  className="w-40 text-right card p-4 animate-slide-up"
+                  className="side-panel card"
                 >
-                  <div className="text-sm description-text">Level</div>
+                  <div className="level-label">Level</div>
                   <motion.div
                     animate={{ scale: [1, 1.1, 1] }}
                     transition={{ duration: 2, repeat: Infinity }}
-                    className="text-4xl font-bold xp-text animate-pulse"
+                    className="level-xp"
                   >
                     {level}
                   </motion.div>
@@ -467,46 +467,46 @@ export default function Quest() {
                   animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
                   onSubmit={handleUpdate}
-                  className="mt-4 bg-gray-900 p-4 rounded border border-gray-700"
+                  className="edit-form"
                 >
-                  <label className="block text-sm text-gray-300 mb-2">Title</label>
+                  <label className="form-label">Title</label>
                   <input
                     value={form.title}
                     onChange={(e) => setForm({ ...form, title: e.target.value })}
-                    className="w-full p-2 rounded bg-gray-700 mb-3 text-white focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                    className="form-input mb-3"
                   />
-                  <label className="block text-sm text-gray-300 mb-2">Description</label>
+                  <label className="form-label">Description</label>
                   <textarea
                     value={form.description}
                     onChange={(e) => setForm({ ...form, description: e.target.value })}
-                    className="w-full p-2 rounded bg-gray-700 mb-3 text-white focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                    className="form-input mb-3"
                   />
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="edit-form-row">
                     <div>
-                      <label className="block text-sm text-gray-300 mb-1">Reps</label>
+                      <label className="form-label">Reps</label>
                       <input
                         type="number"
                         value={form.baseReps}
                         onChange={(e) => setForm({ ...form, baseReps: e.target.value })}
-                        className="w-full p-2 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                        className="form-input"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm text-gray-300 mb-1">Duration (min)</label>
+                      <label className="form-label">Duration (min)</label>
                       <input
                         type="number"
                         value={form.baseDuration}
                         onChange={(e) => setForm({ ...form, baseDuration: e.target.value })}
-                        className="w-full p-2 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                        className="form-input"
                       />
                     </div>
                   </div>
-                  <div className="mt-3 flex gap-2">
+                  <div className="edit-form-actions">
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     type="submit"
-                    className="px-3 py-1 rounded font-semibold hover:shadow-glow-cyan transition-all duration-300 animate-glow"
+                    className="btn--primary"
                   >
                     SAVE
                   </motion.button>
@@ -518,7 +518,7 @@ export default function Quest() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.6 }}
-                className="mt-4 description-text text-sm italic"
+                className="quest-quote"
               >
                 💭 <span className="xp-text">{quest?.quote || 'Keep grinding!'}</span>
               </motion.div>
