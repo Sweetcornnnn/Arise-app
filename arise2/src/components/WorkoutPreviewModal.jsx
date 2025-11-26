@@ -29,31 +29,31 @@ export default function WorkoutPreviewModal() {
         {isOpen && (
           <>
             <motion.div
-              className="fixed inset-0 bg-black/60 z-40"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={close}
+              className="modal__backdrop"
             />
 
             <motion.div
-              className="fixed inset-0 z-50 flex items-center justify-center p-4"
+              className="preview-modal"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
             >
-              <div className="w-full max-w-xl bg-white rounded-2xl shadow-xl overflow-hidden">
-                <div className="h-56 bg-black">
+              <div className="preview-card">
+                <div className="preview-media">
                   <img src={cat.asset} alt={cat.label} className="w-full h-full object-cover" />
                 </div>
 
-                <div className="p-6">
+                <div className="preview-body">
                   <div className="flex items-start justify-between">
                     <div>
                       <h3 className="text-2xl font-bold">{cat.label}</h3>
                       <p className="text-sm text-gray-500 mt-1">No equipment • Quick session</p>
                     </div>
-                    <button onClick={close} className="text-gray-400">✕</button>
+                    <button onClick={close} className="preview-close">✕</button>
                   </div>
 
                   <div className="mt-4 text-gray-700">
@@ -64,19 +64,23 @@ export default function WorkoutPreviewModal() {
                     <p className="text-sm mt-2">Improved strength, endurance, and mobility. Small XP reward on completion.</p>
                   </div>
 
-                  <div className="mt-6 flex gap-3">
-                    <button
-                      onClick={() => setShowStart(true)}
-                      className="flex-1 px-4 py-3 bg-gradient-to-r from-red-600 to-red-500 text-white rounded-lg font-semibold hover:scale-105 transition"
-                    >
-                      ▶ Start Workout
-                    </button>
-                    <button
-                      onClick={() => close()}
-                      className="px-4 py-3 border rounded-lg text-gray-700"
-                    >
-                      Close
-                    </button>
+                  <div className="preview-actions">
+                    <div className="preview-start">
+                      <button
+                        onClick={() => setShowStart(true)}
+                        className="btn--primary"
+                      >
+                        ▶ Start Workout
+                      </button>
+                    </div>
+                    <div>
+                      <button
+                        onClick={() => close()}
+                        className="preview-close--secondary btn--secondary"
+                      >
+                        Close
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

@@ -178,7 +178,7 @@ export default function QuestNotif() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black bg-opacity-60 z-40"
+        className="modal__backdrop"
         onClick={() => setOpen(false)}
       />
 
@@ -187,21 +187,21 @@ export default function QuestNotif() {
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
         transition={{ type: 'spring', stiffness: 280, damping: 22, duration: 0.45 }}
-        className="fixed z-50 left-1/2 top-24 transform -translate-x-1/2 w-full max-w-md p-6 bg-card-bg rounded-lg border border-neon-cyan shadow-2xl"
+        className="modal modal__dialog quest-notif-modal"
       >
-        <div className="flex justify-between items-start mb-4">
-          <h3 className="quest-title text-lg">Today's Quest</h3>
-          <button onClick={() => setOpen(false)} className="text-soft-gray">✕</button>
+        <div className="modal__header">
+          <h3 className="quest-title">Today's Quest</h3>
+          <button onClick={() => setOpen(false)} className="btn--secondary">✕</button>
         </div>
 
         <div className="mb-4">
-          <div className="font-semibold text-white text-lg">{quest.title}</div>
-          <div className="description-text text-sm text-gray-300 mt-2">{quest.description}</div>
+          <div className="quest-title quest-title-lg">{quest.title}</div>
+          <div className="description-text quest-desc">{quest.description}</div>
         </div>
 
-        <div className="flex gap-3">
+        <div className="btn-row">
           <button
-            className="flex-1 px-4 py-2 rounded-lg bg-gradient-to-r from-green-600 to-green-500 text-white font-bold hover:scale-105 transition"
+            className="btn--primary flex-1"
             onClick={() => {
               setOpen(false);
               navigate('/quest');
@@ -211,14 +211,14 @@ export default function QuestNotif() {
           </button>
 
           <button
-            className="px-3 py-2 rounded-lg border border-soft-gray text-soft-gray"
+            className="btn--secondary"
             onClick={() => setOpen(false)}
           >
             Dismiss
           </button>
 
           <button
-            className="px-3 py-2 rounded-lg border border-yellow-500 text-yellow-300"
+            className="btn--secondary btn--remind"
             onClick={() => remindLater(60)}
           >
             Remind me later

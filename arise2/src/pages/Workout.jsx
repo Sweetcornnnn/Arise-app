@@ -26,13 +26,13 @@ export default function Workout() {
 
   // Toast component (top-right notifications)
   function Toast({ message, type = "success" }) {
-    const bgColor = type === "success" ? "bg-green-600" : "bg-red-600";
+    const cls = `toast ${type === 'success' ? 'toast--success' : 'toast--error'}`;
     return (
       <motion.div
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className={`fixed top-4 right-4 p-4 rounded-lg text-white ${bgColor} shadow-lg z-50`}
+        className={cls}
       >
         {message}
       </motion.div>
@@ -166,7 +166,7 @@ export default function Workout() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-dark-navy to-dark-bg text-white flex items-center justify-center">
+      <div className="loading-center">
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
@@ -177,27 +177,27 @@ export default function Workout() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-dark-navy to-dark-bg text-white p-6 animate-fade-in">
+    <div className="page--workout">
       <motion.header
-        className="flex justify-between items-center mb-8"
+        className="workout__header"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
         <motion.h1
-          className="quest-title text-4xl"
+          className="quest-title"
           whileHover={{ scale: 1.05 }}
         >
           WORKOUTS
         </motion.h1>
-        <nav className="flex space-x-6">
+        <nav className="nav-links">
           <motion.div whileHover={{ scale: 1.1 }}>
-            <Link to="/home" className="text-neon-cyan hover:text-cyan-400 transition-colors duration-300 font-semibold">
+            <Link to="/home" className="nav-link">
               DASHBOARD
             </Link>
           </motion.div>
           <motion.div whileHover={{ scale: 1.1 }}>
-            <Link to="/chat" className="text-neon-cyan hover:text-cyan-400 transition-colors duration-300 font-semibold">
+            <Link to="/chat" className="nav-link">
               CHAT
             </Link>
           </motion.div>
@@ -205,20 +205,20 @@ export default function Workout() {
       </motion.header>
 
       <motion.section
-        className="card p-6 mb-8"
+        className="card workout__card"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2, duration: 0.5 }}
       >
         <motion.h2
-          className="quest-title text-2xl mb-6"
+          className="quest-title"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4 }}
         >
           LOG A WORKOUT
         </motion.h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="">
           <motion.input
             value={name}
             onChange={(e) => {
@@ -226,7 +226,7 @@ export default function Workout() {
               setError("");
             }}
             placeholder="Workout name (e.g., Morning Run, Chest Day)"
-            className="w-full p-3 rounded-lg bg-card-bg border border-neon-cyan focus:border-glow-cyan transition-all duration-300 text-white"
+            className="form-input"
             required
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -234,7 +234,7 @@ export default function Workout() {
             disabled={workoutInProgress}
           />
           <motion.div
-            className="grid grid-cols-3 gap-4"
+            className="grid-3"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
@@ -244,7 +244,7 @@ export default function Workout() {
               value={sets}
               onChange={(e) => setSets(e.target.value)}
               placeholder="Sets"
-              className="p-3 rounded-lg bg-card-bg border border-neon-cyan focus:border-glow-cyan transition-all duration-300 text-white"
+              className="form-input"
               disabled={workoutInProgress}
             />
             <input
@@ -252,7 +252,7 @@ export default function Workout() {
               value={reps}
               onChange={(e) => setReps(e.target.value)}
               placeholder="Reps"
-              className="p-3 rounded-lg bg-card-bg border border-neon-cyan focus:border-glow-cyan transition-all duration-300 text-white"
+              className="form-input"
               disabled={workoutInProgress}
             />
             <input
@@ -260,7 +260,7 @@ export default function Workout() {
               value={duration}
               onChange={(e) => setDuration(e.target.value)}
               placeholder="Duration (min)"
-              className="p-3 rounded-lg bg-card-bg border border-neon-cyan focus:border-glow-cyan transition-all duration-300 text-white"
+              className="form-input"
               disabled={workoutInProgress}
             />
           </motion.div>
@@ -275,7 +275,7 @@ export default function Workout() {
           )}
           {/* success is shown via top-right toast */}
           <motion.div
-            className="flex gap-3"
+            className="btn-row"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.7 }}
@@ -284,7 +284,7 @@ export default function Workout() {
               type="button"
               onClick={handleStartWorkout}
               disabled={workoutInProgress || !name.trim()}
-              className="flex-1 px-6 py-3 rounded-lg font-bold bg-gradient-to-r from-green-600 to-green-500 hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="btn--primary"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
@@ -293,7 +293,7 @@ export default function Workout() {
             <motion.button
               type="submit"
               disabled={workoutInProgress}
-              className="flex-1 px-6 py-3 rounded-lg font-bold hover:shadow-glow-cyan transition-all duration-300 animate-glow disabled:opacity-50 disabled:cursor-not-allowed"
+              className="btn--secondary"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
@@ -309,14 +309,14 @@ export default function Workout() {
         transition={{ delay: 0.3, duration: 0.5 }}
       >
         <motion.h3
-          className="quest-title text-2xl mb-6"
+          className="quest-title"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.8 }}
         >
           RECENT WORKOUTS
         </motion.h3>
-        <div className="space-y-4">
+        <div className="workout-list">
           {workouts.length === 0 && (
             <motion.p
               className="description-text text-sm"
@@ -330,7 +330,7 @@ export default function Workout() {
           {workouts.map((w, index) => (
             <motion.div
               key={w.id}
-              className="card p-4 flex justify-between items-start animate-slide-up"
+              className="card"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.9 + index * 0.1 }}
@@ -342,7 +342,7 @@ export default function Workout() {
                   Sets: <span className="xp-text">{w.sets}</span> | Reps: <span className="xp-text">{w.reps}</span> | Duration: <span className="xp-text">{w.duration}m</span>
                 </div>
                 {w.loggedOnly && (
-                  <div className="mt-2 inline-block px-2 py-1 text-xs rounded bg-yellow-700 text-yellow-100 font-semibold">LOGGED</div>
+                  <div className="mt-2 badge-logged">LOGGED</div>
                 )}
               </div>
               <div className="text-xs description-text">

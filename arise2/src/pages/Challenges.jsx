@@ -21,35 +21,33 @@ const CATEGORIES = [
 
 export default function Challenges() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-dark-navy to-dark-bg text-white p-6 animate-fade-in">
-      <header className="max-w-4xl mx-auto mb-6">
+    <div className="page--challenges">
+      <header className="challenges__header">
         <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight">Choose Your Workout</h1>
-        <p className="mt-2 text-gray-600 text-sm sm:text-base">No Equipment Needed</p>
+        <p className="challenges__subtitle">No Equipment Needed</p>
       </header>
 
-      
-
-      <main className="max-w-4xl mx-auto">
-        <section className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-4">
+      <main className="challenges__main">
+        <section className="challenges__grid">
           {CATEGORIES.map((cat) => (
             <button
               key={cat.key}
               type="button"
               aria-label={`Choose ${cat.label} workout`}
-              className="group relative overflow-hidden rounded-2xl shadow-lg focus:outline-none focus:ring-4 focus:ring-red-300 transform transition hover:scale-105 bg-white"
+              className="challenge__card"
               onClick={() => window.dispatchEvent(new CustomEvent('openWorkoutPreview', { detail: cat }))}
             >
               {/* Image placeholder (top portion) */}
-              <div className="h-36 sm:h-40 md:h-44 bg-black flex items-center justify-center">
-                <img src={cat.asset} alt={cat.label} className="w-full h-full object-cover opacity-95" />
+              <div className="challenge__media">
+                <img src={cat.asset} alt={cat.label} className="w-full h-full object-cover" />
               </div>
 
               {/* Title overlay - bottom gradient bar */}
-              <div className="absolute left-0 right-0 bottom-0 p-3 bg-gradient-to-t from-black/70 to-transparent">
+              <div className="challenge__overlay">
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="text-white text-base font-bold leading-tight">{cat.label}</div>
-                    <div className="text-red-200 text-xs">Quick • No equipment</div>
+                    <div className="challenge__label">{cat.label}</div>
+                    <div className="challenge__meta">Quick • No equipment</div>
                   </div>
                   <div className="ml-2">
                     <svg
@@ -67,10 +65,10 @@ export default function Challenges() {
                 </div>
               </div>
 
-              {/* Subtle white card area for spacing (keeps tall card feel on small screens) */}
-              <div className="bg-white p-3 sm:p-4">
-                <div className="text-sm text-gray-700 font-semibold">{cat.label} Workout</div>
-                <div className="text-xs text-gray-400 mt-1">{Math.floor(10 + Math.random() * 30)} min • Beginner</div>
+              {/* Subtle info area */}
+              <div className="challenge__info">
+                <div className="text-sm text-gray-300 font-semibold">{cat.label} Workout</div>
+                <div className="challenge__meta">{Math.floor(10 + Math.random() * 30)} min • Beginner</div>
               </div>
             </button>
           ))}

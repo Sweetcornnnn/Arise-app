@@ -36,7 +36,7 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-dark-navy to-dark-bg text-white flex items-center justify-center">
+      <div className="loading-center">
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
@@ -50,36 +50,36 @@ export default function Dashboard() {
   const { level, progress } = xpToLevel(xp);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-dark-navy to-dark-bg text-white p-6">
+    <div className="page--dashboard">
       <QuestNotif />
       <motion.header
-        className="flex justify-between items-center mb-8"
+        className="dashboard__header"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
         <motion.h1
-          className="quest-title text-4xl"
+          className="quest-title"
           whileHover={{ scale: 1.05 }}
         >
           DASHBOARD
         </motion.h1>
         <div className="flex items-center gap-4">
-          <nav className="flex space-x-6">
+          <nav className="nav-links">
             <motion.div whileHover={{ scale: 1.1 }}>
-              <Link to="/workouts" className="text-neon-cyan hover:text-cyan-400 transition-colors duration-300 font-semibold">
+              <Link to="/workouts" className="nav-link">
                 WORKOUTS
               </Link>
             </motion.div>
             <motion.div whileHover={{ scale: 1.1 }}>
-              <Link to="/chat" className="text-neon-cyan hover:text-cyan-400 transition-colors duration-300 font-semibold">
+              <Link to="/chat" className="nav-link">
                 CHAT
               </Link>
             </motion.div>
           </nav>
           <motion.button
             onClick={logout}
-            className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 transition-all duration-300 font-semibold"
+            className="btn--danger"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
@@ -114,7 +114,7 @@ export default function Dashboard() {
             </motion.p>
           </div>
           <motion.div
-            className="w-1/2"
+            className="level-wrapper"
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.6 }}
@@ -138,7 +138,7 @@ export default function Dashboard() {
         >
           STATS OVERVIEW
         </motion.h3>
-        <div className="grid grid-cols-3 gap-4">
+        <div className="stats-grid">
           <motion.div
             className="text-center card p-4 animate-pulse"
             whileHover={{ scale: 1.05 }}
@@ -180,9 +180,9 @@ export default function Dashboard() {
         >
           QUICK ACTIONS
         </motion.h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="quick-actions-grid">
           <motion.div
-            className="card p-6 text-center animate-border-pulse"
+            className="quick-card card animate-border-pulse"
             whileHover={{ scale: 1.05, boxShadow: "0 0 40px rgba(0, 232, 255, 0.6)" }}
             whileTap={{ scale: 0.95 }}
           >
@@ -193,7 +193,7 @@ export default function Dashboard() {
             </Link>
           </motion.div>
           <motion.div
-            className="card p-6 text-center animate-border-pulse"
+            className="quick-card card animate-border-pulse"
             whileHover={{ scale: 1.05, boxShadow: "0 0 40px rgba(0, 232, 255, 0.6)" }}
             whileTap={{ scale: 0.95 }}
           >
@@ -204,7 +204,7 @@ export default function Dashboard() {
             </Link>
           </motion.div>
           <motion.div
-            className="card p-6 text-center animate-border-pulse"
+            className="quick-card card animate-border-pulse"
             whileHover={{ scale: 1.05, boxShadow: "0 0 40px rgba(0, 232, 255, 0.6)" }}
             whileTap={{ scale: 0.95 }}
           >

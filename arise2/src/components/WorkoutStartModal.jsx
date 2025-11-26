@@ -230,7 +230,7 @@ export const WorkoutStartModal = ({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={!isStarted ? handleClose : undefined}
-              className="fixed inset-0 bg-black bg-opacity-70 z-40 backdrop-blur-sm"
+              className="modal__backdrop"
             />
           )}
 
@@ -241,9 +241,9 @@ export const WorkoutStartModal = ({
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.8, y: 20 }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="fixed bottom-4 right-4 z-50"
+              className="floating-widget"
             >
-              <div className="card p-4 rounded-lg shadow-xl border border-neon-cyan bg-gradient-to-br from-card-bg to-card-bg/80 min-w-fit">
+              <div className="card floating-widget__card">
                 <div className="flex items-center gap-4">
                   
                   <motion.div
@@ -269,7 +269,7 @@ export const WorkoutStartModal = ({
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setIsMinimized(false)}
-                    className="flex-shrink-0 px-3 py-1 rounded bg-neon-cyan/20 border border-neon-cyan text-neon-cyan hover:bg-neon-cyan hover:text-card-bg transition-all duration-300 text-xs font-bold"
+                    className="restore-button"
                   >
                     ▲ RESTORE
                   </motion.button>
@@ -285,12 +285,12 @@ export const WorkoutStartModal = ({
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="fixed inset-0 z-50 flex items-center justify-center p-4"
+              className="modal"
             >
-              <div className="card w-full max-w-md p-8 rounded-lg shadow-2xl border border-neon-cyan">
+              <div className="card modal__dialog">
                 
-                <div className="flex justify-between items-center mb-6">
-                  <motion.h2 className="quest-title text-2xl">{title}</motion.h2>
+                <div className="modal__header">
+                  <motion.h2 className="modal__title">{title}</motion.h2>
                   <div className="flex gap-2">
                     
                     {isStarted && (
@@ -299,7 +299,7 @@ export const WorkoutStartModal = ({
                         whileTap={{ scale: 0.95 }}
                         onClick={() => setIsMinimized(true)}
                         title="Minimize to continue using the app"
-                        className="text-2xl text-soft-gray hover:text-neon-cyan transition cursor-pointer"
+                        className="modal__minimize"
                       >
                         ━
                       </motion.button>
@@ -310,7 +310,7 @@ export const WorkoutStartModal = ({
                       whileTap={{ scale: 0.95 }}
                       onClick={!isStarted ? handleClose : undefined}
                       disabled={isStarted && !isMinimized}
-                      className={`text-2xl ${isStarted && !isMinimized ? "text-gray-600 cursor-not-allowed" : "text-soft-gray hover:text-red-500 transition cursor-pointer"}`}
+                      className={`text-2xl modal__close ${isStarted && !isMinimized ? "text-gray-600 cursor-not-allowed" : "text-soft-gray hover:text-red-500 transition cursor-pointer"}`}
                     >
                       ✕
                     </motion.button>
@@ -341,7 +341,7 @@ export const WorkoutStartModal = ({
                       }}
                       onKeyPress={(e) => e.key === "Enter" && handleStart()}
                       placeholder="30 or 1:30 or 1:30:45"
-                      className="w-full p-3 rounded-lg bg-card-bg border border-neon-cyan focus:border-glow-cyan outline-none transition-all duration-300 text-white text-center text-lg font-semibold"
+                      className="time-input"
                       whileFocus={{ scale: 1.02 }}
                       disabled={isStarted}
                     />
@@ -364,7 +364,7 @@ export const WorkoutStartModal = ({
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={handleStart}
-                      className="flex-1 px-4 py-3 rounded-lg font-bold bg-gradient-to-r from-green-600 to-green-500 hover:shadow-lg transition-all duration-300"
+                      className="flex-1 btn--primary"
                     >
                       ▶ START
                     </motion.button>
@@ -372,7 +372,7 @@ export const WorkoutStartModal = ({
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={handleClose}
-                      className="flex-1 px-4 py-3 rounded-lg font-bold border border-soft-gray text-soft-gray hover:text-red-400 hover:border-red-400 transition-all duration-300"
+                      className="flex-1 btn--secondary"
                     >
                       CLOSE
                     </motion.button>
@@ -393,7 +393,7 @@ export const WorkoutStartModal = ({
                   <motion.div
                     animate={{ scale: [1, 1.05, 1] }}
                     transition={{ duration: 1.5, repeat: Infinity }}
-                    className="mb-8 p-6 bg-gradient-to-br from-neon-cyan/20 to-purple-600/20 rounded-lg border border-neon-cyan text-center"
+                    className="mb-8 p-6 modal__progress-card text-center"
                   >
                     <div className="text-xs text-gray-300 mb-2">REMAINING TIME</div>
                     <div className="text-5xl font-bold xp-text font-mono">
@@ -402,13 +402,15 @@ export const WorkoutStartModal = ({
                   </motion.div>
 
                   
-                  <div className="mb-6 bg-gray-700 rounded-full h-2 overflow-hidden">
-                    <motion.div
-                      className="h-full bg-gradient-to-r from-neon-cyan to-purple-600"
-                      initial={{ width: "100%" }}
-                      animate={{ width: `${((sessionRef.current?.estimatedDuration || 1) / ((sessionRef.current?.startTime || Date.now()) + (sessionRef.current?.estimatedDuration || 1) - Date.now())) * 100}%` }}
-                      transition={{ duration: 1, ease: "linear" }}
-                    />
+                  <div className="mb-6">
+                    <div className="progress">
+                      <motion.div
+                        className="progress__bar"
+                        initial={{ width: "100%" }}
+                        animate={{ width: `${((sessionRef.current?.estimatedDuration || 1) / ((sessionRef.current?.startTime || Date.now()) + (sessionRef.current?.estimatedDuration || 1) - Date.now())) * 100}%` }}
+                        transition={{ duration: 1, ease: "linear" }}
+                      />
+                    </div>
                   </div>
 
                   <p className="description-text text-center text-sm mb-6">
@@ -420,7 +422,7 @@ export const WorkoutStartModal = ({
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={handleCancel}
-                    className="w-full px-4 py-3 rounded-lg font-bold border border-red-500 text-red-400 hover:bg-red-500 hover:text-white transition-all duration-300"
+                    className="w-full btn--danger"
                   >
                     ✕ CANCEL {type === "quest" ? "QUEST" : "WORKOUT"}
                   </motion.button>
