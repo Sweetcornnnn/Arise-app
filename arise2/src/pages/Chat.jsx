@@ -81,12 +81,12 @@ export default function Chat() {
 
         {/* Header - centered above panels */}
         <motion.header
-          className="w-full flex justify-between items-center mb-6"
+          className="w-full flex flex-col md:flex-row justify-between items-center mb-6 gap-4"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <motion.h1 className="quest-title text-4xl" whileHover={{ scale: 1.05 }}>
+          <motion.h1 className="quest-title text-3xl md:text-4xl" whileHover={{ scale: 1.05 }}>
             CHATROOM
           </motion.h1>
 
@@ -110,15 +110,15 @@ export default function Chat() {
           </nav>
         </motion.header>
 
-        {/* Center panels below header */}
+        {/* Center panels below header (responsive: stacked on small screens, side-by-side on md+) */}
         <div className="flex justify-center">
-          <div className="flex gap-6 items-start">
+          <div className="flex flex-col md:flex-row gap-6 items-start w-full md:ml-[4vw]">
 
-            {/* ----------------------- LEFT COLUMN: CHAT (fixed size) ----------------------- */}
-            <div className="w-[820px] flex-shrink-0 flex flex-col">
+            {/* ----------------------- LEFT COLUMN: CHAT (responsive) ----------------------- */}
+            <div className="w-full md:w-[820px] flex-shrink-0 flex flex-col">
 
           {/* Chat Box */}
-          <motion.div className="card h-[72vh] flex flex-col rounded-lg border border-neon-cyan shadow-lg bg-card-bg animate-slide-up">
+          <motion.div className="card h-[110vh] md:h-[72vh] flex flex-col rounded-lg border border-neon-cyan shadow-lg bg-card-bg animate-slide-up w-full">
 
             {/* Chat Info */}
             <div className="p-4 border-b border-neon-cyan/10">
@@ -151,7 +151,7 @@ export default function Chat() {
                       )}
 
                       <div
-                        className={`max-w-[75%] px-4 py-2 rounded-2xl break-words text-sm ${
+                        className={`max-w-[90%] md:max-w-[75%] px-4 py-2 rounded-2xl break-words text-sm ${
                           isOwn
                             ? "bg-[#0f1724] border border-neon-cyan/10 shadow-[0_6px_20px_rgba(0,0,0,0.6)] text-white"
                             : "bg-[#0b1220] border border-neon-cyan/20 shadow-md text-white"
@@ -171,7 +171,7 @@ export default function Chat() {
 
             {/* Input */}
             <div className="p-4 border-t border-neon-cyan/10">
-              <div className="flex gap-4">
+              <div className="flex flex-inline sm:flex-row gap-4">
                 <input
                   value={text}
                   onChange={(e) => setText(e.target.value)}
@@ -181,7 +181,7 @@ export default function Chat() {
                 />
                 <button
                   onClick={sendMessage}
-                  className="px-6 py-3 rounded-xl font-bold bg-gradient-to-r from-blue-600 to-blue-500 hover:shadow-glow-cyan transition-all duration-300 animate-glow"
+                  className="w-auto sm:w-auto px-6 sm:px-6 py-3 rounded-xl font-bold bg-gradient-to-r from-blue-600 to-blue-500 hover:shadow-glow-cyan transition-all duration-300 animate-glow"
                 >
                   SEND
                 </button>
@@ -190,9 +190,9 @@ export default function Chat() {
           </motion.div>
         </div>
 
-        {/* ----------------------- RIGHT COLUMN: USERS (aligned top) ----------------------- */}
-        <div className="w-72 flex-shrink-0">
-          <div className="card p-4 rounded-lg border border-neon-cyan shadow-lg bg-card-bg h-[72vh] flex flex-col">
+        {/* ----------------------- RIGHT COLUMN: USERS (aligned top, responsive) ----------------------- */}
+        <div className="w-full md:w-72 flex-shrink-0">
+          <div className="card p-4 rounded-lg border border-neon-cyan shadow-lg bg-card-bg h-[34vh] md:h-[72vh] flex flex-col w-full">
             {/* Header */}
             <div className="mb-4">
               <div className="text-lg font-heading">Users</div>

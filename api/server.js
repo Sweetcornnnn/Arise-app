@@ -40,6 +40,8 @@ db.serialize(() => {
     sets INTEGER,
     reps INTEGER,
     duration INTEGER,
+    loggedOnly INTEGER DEFAULT 0,
+    type TEXT DEFAULT 'workout',
     date TEXT DEFAULT CURRENT_DATE,
     createdAt TEXT DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(userId) REFERENCES users(id)
@@ -86,6 +88,24 @@ db.serialize(() => {
     createdAt TEXT DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(userId) REFERENCES users(id)
   )`);
+
+  // Ensure `loggedOnly` column exists on older DBs (safe check)
+  db.all("PRAGMA table_info(workouts)", (perr, cols) => {
+    if (!perr) {
+      const hasLogged = cols && cols.find && cols.find((c) => c && c.name === 'loggedOnly');
+      if (!hasLogged) {
+        db.run(`ALTER TABLE workouts ADD COLUMN loggedOnly INTEGER DEFAULT 0`, (aerr) => {
+          if (aerr && !/duplicate column/i.test(aerr.message)) console.error('Failed to add loggedOnly column:', aerr.message);
+        });
+      }
+      const hasType = cols && cols.find && cols.find((c) => c && c.name === 'type');
+      if (!hasType) {
+        db.run(`ALTER TABLE workouts ADD COLUMN type TEXT DEFAULT 'workout'`, (aerr) => {
+          if (aerr && !/duplicate column/i.test(aerr.message)) console.error('Failed to add type column:', aerr.message);
+        });
+      }
+    }
+  });
 });
 
 // Middleware
@@ -174,21 +194,20 @@ app.get("/api/profile", authMiddleware, (req, res) => {
 
 // Workouts
 app.post("/api/workouts", authMiddleware, (req, res) => {
-  const { name, sets = 0, reps = 0, duration = 0 } = req.body;
+  const { name, sets = 0, reps = 0, duration = 0, loggedOnly = 0, type = 'workout' } = req.body;
   const uid = req.user.id;
   
   db.run(
-    `INSERT INTO workouts (userId, name, sets, reps, duration) VALUES (?, ?, ?, ?, ?)`,
-    [uid, name, sets, reps, duration],
+    `INSERT INTO workouts (userId, name, sets, reps, duration, loggedOnly, type) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    [uid, name, sets, reps, duration, loggedOnly ? 1 : 0, type],
     function(err) {
       if (err) return res.status(500).json({ error: err.message });
       
-      const xpGain = 15 + sets * 1 + Math.floor(reps * 0.1);
+      const xpGain = type === 'quest' ? 50 : type === 'challenge' ? 25 : (15 + sets * 1 + Math.floor(reps * 0.1));
       db.run(`UPDATE users SET xp = xp + ? WHERE id = ?`, [xpGain, uid], (uerr) => {
         if (uerr) console.error(uerr);
       });
-      
-      res.json({ id: this.lastID, name, sets, reps, duration });
+      res.json({ id: this.lastID, name, sets, reps, duration, loggedOnly: loggedOnly ? 1 : 0, type });
     }
   );
 });

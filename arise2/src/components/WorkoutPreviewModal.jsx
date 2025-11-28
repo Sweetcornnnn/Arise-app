@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Play } from 'lucide-react';
 import { WorkoutStartModal } from './WorkoutStartModal.jsx';
+import api from '../api.js';
 
 export default function WorkoutPreviewModal() {
   const [isOpen, setIsOpen] = useState(false);
@@ -112,9 +113,22 @@ export default function WorkoutPreviewModal() {
       <WorkoutStartModal
         isOpen={showStart}
         onClose={() => setShowStart(false)}
-        onComplete={() => {
+        onComplete={async () => {
           setShowStart(false);
           setIsOpen(false);
+          // Log challenge completion to the Recent list
+          try {
+            await api.post("/workouts", {
+              name: cat?.label || 'Challenge',
+              sets: 0,
+              reps: 0,
+              duration: 0,
+              type: 'challenge',
+            });
+            window.dispatchEvent(new CustomEvent('activityLogged'));
+          } catch (e) {
+            console.error('Failed to log challenge activity:', e);
+          }
         }}
         onCancel={() => setShowStart(false)}
         workoutId={cat?.key || ''}

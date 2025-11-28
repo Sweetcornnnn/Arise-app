@@ -52,12 +52,12 @@ export default function Dashboard() {
   const { level, progress } = xpToLevel(xp);
 
   return (
-    <div className="h-screen bg-gradient-to-br from-[#0b0d1c] to-[#0a0b16] text-white px-4">
+    <div className="h-screen bg-gradient-to-br from-[#0b0d1c] to-[#0a0b16] text-white px-4 mt-6">
       <QuestNotif />
 
       {/* Header */}
       <motion.header
-        className="flex justify-between items-center mb-8"
+        className="w-full flex flex-col md:flex-row justify-between items-center mb-6 gap-4 max-w-[1200px] mx-auto"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
